@@ -7,10 +7,11 @@ import { blue } from '@mui/material/colors';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import Admin from '../components/layout/admin/Admin';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import EditIcon from '@material-ui/icons/Edit';
-import SaveAltIcon from '@material-ui/icons/SaveAlt';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+
+import GetAppIcon from '@mui/icons-material/GetApp';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: blue[500],
