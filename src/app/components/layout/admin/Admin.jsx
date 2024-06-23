@@ -19,12 +19,13 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import BubbleChartIcon from '@mui/icons-material/BubbleChart';
 import Link from 'next/link';
 export const drawerWidth = 240; // Exporta drawerWidth aquí
 import TableChartIcon from '@mui/icons-material/TableChart';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
+import GridGoldenratioIcon from '@mui/icons-material/GridGoldenratio';
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -105,6 +106,8 @@ const Admin = ({ children }) => {
     { text: "Inicio", icon: <TableChartIcon />, href: "/" }, 
     { text: "Análisis Vertical", icon: <SwapVerticalCircleIcon />, href: "/vertical" }, 
     { text: "Análisis Horizontal", icon: <SwapHorizontalCircleIcon />, href: "/horizontal" }, 
+    { text: "Análisis De Tendencias", icon: <BubbleChartIcon />, href: "/analisis" }, 
+    { text: "Ratios Financieros", icon: <GridGoldenratioIcon />, href: "/ratios-financieros" }, 
   ];
   const menuItems2 = [
     { text: "Cargar Datos", icon: <InboxIcon />, href: "/datos" }, 

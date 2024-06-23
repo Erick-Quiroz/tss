@@ -1,14 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, TextField } from '@mui/material';
+import { Button,Grid, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, TextField } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { blue } from '@mui/material/colors';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import Admin from '../components/layout/admin/Admin';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-
+import '../page.module.css'
 import GetAppIcon from '@mui/icons-material/GetApp';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
@@ -258,54 +258,68 @@ const Home = () => {
 
   return (
     <Admin>
-      <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-        <div style={{ width: '100%', maxWidth: '800px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between' }}>
-          <div>
-            <Button variant="contained" 
-            color="secondary" 
-            style={{ marginRight: '10px' , background:'#864640' }}
-            startIcon={<GetAppIcon />}
-            onClick={handleDownload} 
-            >
-              Descargar Plantilla
-            </Button>
-            <input
-              type="file"
-              accept=".xlsx, .xls"
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-              id="file-upload"
-            />
-            <label htmlFor="file-upload">
-              <Button 
-              variant="contained" 
-              component="span" 
-              color="primary"
-              startIcon={<CloudUploadIcon />}
-              style={{ marginRight: '10px' , background:'#673265' }}
-              >
-                Subir Excel
-              </Button>
-            </label>
-          </div>
-          {excelData && (
-            <div>
-              <Button variant="contained" startIcon={<EditIcon />} onClick={toggleEditTable} style={{ marginRight: '10px' , background:'#fca61d' }}>
-                {editButtonText}
-              </Button>
-              <Button 
-              variant="contained" 
-              startIcon={<SaveAltIcon />}
-              onClick={saveChanges} 
-              style={{ marginRight: '10px' , background:'#267e1b' }}>
-                Guardar Datos
-              </Button>
-            </div>
-            
-          )}
-        </div>
-        {renderTable()}
-      </main>
+     <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+  <Grid container spacing={2} style={{ maxWidth: '800px', marginBottom: '20px' }}>
+    <Grid item xs={6} sm={6} style={{ display: 'flex' }}>
+      <Button 
+        variant="contained" 
+        color="secondary" 
+        style={{ width: '100%', background:'#864640', height: '100%' }}  // Ajustar altura al 100% del contenedor
+        startIcon={<GetAppIcon />}
+        onClick={handleDownload} 
+      >
+        Descargar Plantilla
+      </Button>
+    </Grid>
+    <Grid item xs={6} sm={6} style={{ display: 'flex' }}>
+      <label htmlFor="file-upload" style={{ width: '100%' }}>
+        <input
+          type="file"
+          accept=".xlsx, .xls, .pdf"
+          onChange={handleFileUpload}
+          style={{ display: 'none' }}
+          id="file-upload"
+        />
+        <Button 
+          variant="contained" 
+          component="span" 
+          color="primary"
+          style={{ width: '100%', background:'#673265', height: '100%' }}  // Ajustar altura al 100% del contenedor
+          startIcon={<CloudUploadIcon />}
+        >
+          Subir Excel
+        </Button>
+      </label>
+    </Grid>
+    {excelData && (
+      <>
+        <Grid item xs={6} sm={6} style={{ display: 'flex' }}>
+          <Button 
+            variant="contained" 
+            startIcon={<EditIcon />} 
+            onClick={toggleEditTable} 
+            style={{ width: '100%', background:'#fca61d', height: '100%' }}  // Ajustar altura al 100% del contenedor
+          >
+            {editButtonText}
+          </Button>
+        </Grid>
+        <Grid item xs={6} sm={6} style={{ display: 'flex' }}>
+          <Button 
+            variant="contained" 
+            startIcon={<SaveAltIcon />}
+            onClick={saveChanges} 
+            style={{ width: '100%', background:'#267e1b', height: '100%' }}  // Ajustar altura al 100% del contenedor
+          >
+            Guardar Datos
+          </Button>
+        </Grid>
+      </>
+    )}
+  </Grid>
+  {renderTable()}
+</main>
+
+
     </Admin>
   );
 };

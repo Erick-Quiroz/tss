@@ -212,9 +212,9 @@ const Home = () => {
                     return (
                       <TableRow key={rowIndex} style={{ backgroundColor: rowIndex % 2 === 0 ? blueGrey[50] : 'transparent', fontWeight: row.CATEGORIA.toLowerCase().includes('subtotal') ? 'bold' : 'normal' }}>
                         <TableCell align="center">{row.CATEGORIA}</TableCell>
-                        <TableCell align="center">{row[year]}</TableCell>
-                        <TableCell align="center">{avVertical.toFixed(2)}</TableCell>
-                        <TableCell align="center">{subcuentasPercentage}</TableCell>
+                        <TableCell align="center">{row[year]} Bs.</TableCell>
+                        <TableCell align="center">{avVertical.toFixed(2)}%</TableCell>
+                        <TableCell align="center">{subcuentasPercentage}%</TableCell>
                       </TableRow>
                     );
                   })}

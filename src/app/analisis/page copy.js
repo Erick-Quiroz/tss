@@ -14,8 +14,6 @@ import {
   FormControl,
   InputLabel,
   Grid,
-  Tabs,
-  Tab,
   Typography
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -35,7 +33,6 @@ export default function Home() {
   const [availableYears, setAvailableYears] = useState([]); // Array para almacenar los años disponibles
   const [selectedYear1, setSelectedYear1] = useState(''); // Año seleccionado para año 1
   const [selectedYear2, setSelectedYear2] = useState(''); // Año seleccionado para año 2
-  const [selectedTab, setSelectedTab] = useState(0); // Pestaña seleccionada
 
   useEffect(() => {
     fetch('/api/finanza')
@@ -43,10 +40,10 @@ export default function Home() {
       .then(data => {
         console.log('Datos de la API cargados:', data);
         if (data && data.data && data.data.length > 0 && data.data[0].data && data.data[0].data.length > 0) {
-          const years = Object.keys(data.data[0].data[0]).filter(key => key.toLowerCase().startsWith('año'));
+          const years = Object.keys(data.data[0].data[0]).filter(key => key.startsWith('año'));
           setAvailableYears(years);
           setSelectedYear1(years[0]); // Establecer el primer año como seleccionado por defecto para año 1
-          setSelectedYear2(years.length > 1 ? years[1] : ''); // Establecer el segundo año si está disponible, de lo contrario vacío
+          setSelectedYear2(years[1]); // Establecer el segundo año como seleccionado por defecto para año 2
           setExcelData(data.data);
         }
       })
@@ -61,14 +58,6 @@ export default function Home() {
 
   const handleYear2Change = (event) => {
     setSelectedYear2(event.target.value);
-  };
-
-  const handleTabChange = (event, newValue) => {
-    setSelectedTab(newValue);
-    if (newValue < availableYears.length - 1) {
-      setSelectedYear1(availableYears[newValue]);
-      setSelectedYear2(availableYears[newValue + 1]);
-    }
   };
 
   const renderTable = () => {
@@ -96,7 +85,7 @@ export default function Home() {
               <TableRow key={rowIndex} style={{ backgroundColor: rowIndex % 2 === 0 ? blueGrey[50] : 'transparent' }}>
                 {headers.map((header, headerIndex) => (
                   <TableCell key={headerIndex} align="center">
-                    {header === 'Variación Relativa %' ? `${row[header]}%` : typeof row[header] === 'number' ? `${row[header].toFixed(2)} Bs.` : row[header]}
+                    {header === 'Variación Relativa %' ? `${row[header]}%` : row[header]}
                   </TableCell>
                 ))}
               </TableRow>
@@ -127,52 +116,43 @@ export default function Home() {
 
   return (
     <Admin>
-      <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-        <Tabs value={selectedTab} onChange={handleTabChange}>
-          {availableYears.slice(0, -1).map((year, index) => (
-            <Tab key={index} label={`${year} - ${availableYears[index + 1]}`} />
-          ))}
-          <Tab label="Personalizar" />
-        </Tabs>
-        {selectedTab === availableYears.length - 1 && (
-          <Grid container justifyContent="center" spacing={2} style={{ marginBottom: '20px', marginTop: '20px' }}>
-            <Typography variant="h6" style={{ marginRight: '10px', alignSelf: 'center' }}>Seleccione el rango de año:</Typography>
-            <Grid item>
-              <FormControl style={{ width: '100%' }}>
-                <InputLabel id="year1-select-label">Año 1</InputLabel>
-                <Select
-                  labelId="year1-select-label"
-                  id="year1-select"
-                  value={selectedYear1}
-                  onChange={handleYear1Change}
-                  fullWidth
-                >
-                  {availableYears.map((year, index) => (
-                    <MenuItem key={index} value={year}>{year}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item>
-              <FormControl style={{ width: '100%' }}>
-                <InputLabel id="year2-select-label">Año 2</InputLabel>
-                <Select
-                  labelId="year2-select-label"
-                  id="year2-select"
-                  value={selectedYear2}
-                  onChange={handleYear2Change}
-                  fullWidth
-                >
-                  {availableYears.map((year, index) => (
-                    <MenuItem key={index} value={year}>{year}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-        )}
-        {renderTable()}
-      </main>
-    </Admin>
+  <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+    <Grid container justifyContent="center" spacing={2} style={{ marginBottom: '20px' }}>
+      <Typography variant="h6" style={{ marginRight: '10px', alignSelf: 'center' }}>Seleccione el rango de año:</Typography>
+      <Grid item>
+        <FormControl style={{ width: '100%' }}>
+          <Select
+            labelId="year1-select-label"
+            id="year1-select"
+            value={selectedYear1}
+            onChange={handleYear1Change}
+            fullWidth
+          >
+            {availableYears.map((year, index) => (
+              <MenuItem key={index} value={year}>{year}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid item>
+        <FormControl style={{ width: '100%' }}>
+          <Select
+            labelId="year2-select-label"
+            id="year2-select"
+            value={selectedYear2}
+            onChange={handleYear2Change}
+            fullWidth
+          >
+            {availableYears.map((year, index) => (
+              <MenuItem key={index} value={year}>{year}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Grid>
+    </Grid>
+    {renderTable()}
+  </main>
+</Admin>
+
   );
 }

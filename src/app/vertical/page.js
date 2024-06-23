@@ -1,9 +1,15 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
-import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, Tabs, Tab } from '@mui/material';
+import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, Tabs, Tab, Typography, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { blueGrey } from '@mui/material/colors';
 import Admin from '../components/layout/admin/Admin';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: blueGrey[100],
@@ -182,56 +188,144 @@ const Home = () => {
         </Tabs>
         {years.map((year, yearIndex) => (
           selectedYear === yearIndex && (
-            <TableContainer key={yearIndex} component={Paper} style={{ width: '100%', marginTop: '20px' }}>
-              <Table style={{ minWidth: '100%' }}>
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>Categoría</StyledTableCell>
-                    <StyledTableCell>{`${year}`}</StyledTableCell>
-                    <StyledTableCell>Análisis Vertical %</StyledTableCell>
-                    <StyledTableCell>Análisis Vertical Subcuentas %</StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {excelData[0].data.map((row, rowIndex) => {
-                    const avVertical = parseFloat(row[`AV_${year}`]);
-                    let subcuentasPercentage = '';
+            <div key={yearIndex}>
+              <TableContainer component={Paper} style={{ width: '100%', marginTop: '20px' }}>
+                <Table style={{ minWidth: '100%' }}>
+                  <TableHead>
+                    <TableRow>
+                      <StyledTableCell>Categoría</StyledTableCell>
+                      <StyledTableCell>{`${year}`}</StyledTableCell>
+                      <StyledTableCell>Análisis Vertical %</StyledTableCell>
+                      <StyledTableCell>Análisis Vertical Subcuentas %</StyledTableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {excelData[0].data.map((row, rowIndex) => {
+                      const avVertical = parseFloat(row[`AV_${year}`]);
+                      let subcuentasPercentage = '';
 
-                    const subtotalInfoForCATEGORIA = subtotalInfo[year].find(subtotal => {
-                      const foundItem = subtotal.dataBeforeSubtotal.find(item => item.CATEGORIA === row.CATEGORIA);
-                      return foundItem;
-                    });
+                      const subtotalInfoForCATEGORIA = subtotalInfo[year].find(subtotal => {
+                        const foundItem = subtotal.dataBeforeSubtotal.find(item => item.CATEGORIA === row.CATEGORIA);
+                        return foundItem;
+                      });
 
-                    if (subtotalInfoForCATEGORIA) {
-                      const foundItem = subtotalInfoForCATEGORIA.dataBeforeSubtotal.find(item => item.CATEGORIA === row.CATEGORIA);
-                      const dato = parseFloat(foundItem.dato);
-                      const subtotalValue = parseFloat(subtotalInfoForCATEGORIA.subtotalValue);
-                      subcuentasPercentage = ((dato / subtotalValue) * 100).toFixed(2);
-                    }
+                      if (subtotalInfoForCATEGORIA) {
+                        const foundItem = subtotalInfoForCATEGORIA.dataBeforeSubtotal.find(item => item.CATEGORIA === row.CATEGORIA);
+                        const dato = parseFloat(foundItem.dato);
+                        const subtotalValue = parseFloat(subtotalInfoForCATEGORIA.subtotalValue);
+                        subcuentasPercentage = ((dato / subtotalValue) * 100).toFixed(2);
+                      }
 
-                    return (
-                      <TableRow key={rowIndex} style={{ backgroundColor: rowIndex % 2 === 0 ? blueGrey[50] : 'transparent', fontWeight: row.CATEGORIA.toLowerCase().includes('subtotal') ? 'bold' : 'normal' }}>
-                        <TableCell align="center">{row.CATEGORIA}</TableCell>
-                        <TableCell align="center">{row[year]}</TableCell>
-                        <TableCell align="center">{avVertical.toFixed(2)}</TableCell>
-                        <TableCell align="center">{subcuentasPercentage}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  
-                </TableBody>
-              </Table>
-            </TableContainer>
+                      return (
+                        <TableRow key={rowIndex} style={{ backgroundColor: rowIndex % 2 === 0 ? blueGrey[50] : 'transparent', fontWeight: row.CATEGORIA.toLowerCase().includes('subtotal') ? 'bold' : 'normal' }}>
+                          <TableCell align="center">{row.CATEGORIA}</TableCell>
+                          <TableCell align="center">{row[year]} Bs.</TableCell>
+                          <TableCell align="center">{avVertical.toFixed(2)}%</TableCell>
+                          <TableCell align="center">{subcuentasPercentage}%</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {renderChart(year)}
+            </div>
           )
         ))}
       </div>
     );
   };
-  
+
+  const renderChart = (year) => {
+    const dataForChart = excelData[0].data.map(row => ({
+      label: row.CATEGORIA,
+      value: parseFloat(row[`AV_${year}`])
+    }));
+
+    const chartData = {
+      labels: dataForChart.map(item => item.label),
+      datasets: [
+        {
+          label: `Análisis Vertical ${year}`,
+          data: dataForChart.map(item => item.value),
+          fill: false,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        }
+      ]
+    };
+
+    const chartOptions = {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: `Análisis Vertical ${year}`,
+        },
+      },
+    };
+
+    return (
+      <div style={{ width: '100%', marginTop: '20px' }}>
+        <Line data={chartData} options={chartOptions} />
+      </div>
+    );
+  };
+
+  const exportPDF = () => {
+    const doc = new jsPDF();
+
+    if (!excelData || !excelData[0] || !excelData[0].data) return;
+
+    const year = Object.keys(excelData[0].data[0]).find(key => key.startsWith('AÑO'));
+
+    const tableColumn = ["Categoría", year, "Análisis Vertical %", "Análisis Vertical Subcuentas %"];
+    const tableRows = [];
+
+    excelData[0].data.forEach(row => {
+      const avVertical = parseFloat(row[`AV_${year}`]);
+      let subcuentasPercentage = '';
+
+      const subtotalInfoForCATEGORIA = subtotalInfo[year].find(subtotal => {
+        const foundItem = subtotal.dataBeforeSubtotal.find(item => item.CATEGORIA === row.CATEGORIA);
+        return foundItem;
+      });
+
+      if (subtotalInfoForCATEGORIA) {
+        const foundItem = subtotalInfoForCATEGORIA.dataBeforeSubtotal.find(item => item.CATEGORIA === row.CATEGORIA);
+        const dato = parseFloat(foundItem.dato);
+        const subtotalValue = parseFloat(subtotalInfoForCATEGORIA.subtotalValue);
+        subcuentasPercentage = ((dato / subtotalValue) * 100).toFixed(2);
+      }
+
+      const rowData = [
+        row.CATEGORIA,
+        `${row[year]} Bs.`,
+        `${avVertical.toFixed(2)}%`,
+        `${subcuentasPercentage}%`
+      ];
+      tableRows.push(rowData);
+    });
+
+    doc.autoTable(tableColumn, tableRows, { startY: 20 });
+    doc.text(`Análisis Vertical ${year}`, 14, 15);
+    doc.save(`analisis_vertical_${year}.pdf`);
+  };
+
   return (
     <Admin>
       <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-        <h1>Análisis Vertical por Año</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '20px' }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Análisis Vertical por Año
+          </Typography>
+          <Button variant="contained" color="primary" onClick={exportPDF}>
+            Exportar PDF
+          </Button>
+        </div>
         {renderTables()}
       </main>
     </Admin>
