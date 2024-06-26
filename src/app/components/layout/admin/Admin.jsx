@@ -113,6 +113,10 @@ const Admin = ({ children }) => {
     { text: "Cargar Datos", icon: <InboxIcon />, href: "/datos" }, 
     
   ];
+  const menuItems3 = [
+    { text: "Graficos Balance", icon: <InboxIcon />, href: "/datos" }, 
+    
+  ];
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, Typography, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -6,6 +6,7 @@ import { blueGrey } from '@mui/material/colors';
 import Admin from '../components/layout/admin/Admin';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: blueGrey[100],
@@ -15,6 +16,15 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: '8px 16px',
   textAlign: 'center',
 }));
+
+const getRandomColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
 
 export default function Home() {
   const [excelData, setExcelData] = useState(null);
@@ -92,6 +102,45 @@ export default function Home() {
     );
   };
 
+  const renderChart = () => {
+    if (!excelData || !excelData[0] || !excelData[0].data) return null;
+
+    const headers = Object.keys(excelData[0].data[0]).filter(header => header.toLowerCase().startsWith('año'));
+
+    const labels = excelData[0].data.map(row => row.CATEGORIA);
+
+    const datasets = headers.map(header => ({
+      label: header,
+      data: excelData[0].data.map(row => parseFloat(String(row[header]).replace('Bs', '').replace(',', ''))),
+      borderColor: getRandomColor(),
+      backgroundColor: 'rgba(75,192,192,0.2)',
+      fill: false,
+    }));
+
+    const chartData = labels.map((label, index) => {
+      const data = { name: label };
+      headers.forEach(header => {
+        data[header] = datasets.find(dataset => dataset.label === header).data[index];
+      });
+      return data;
+    });
+
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          {headers.map((header, index) => (
+            <Line key={index} type="monotone" dataKey={header} stroke={datasets[index].borderColor} />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    );
+  };
+
   const exportPDF = () => {
     // Capturar la tabla como una imagen usando html2canvas
     html2canvas(document.getElementById('table-to-export')).then(canvas => {
@@ -131,6 +180,7 @@ export default function Home() {
           </Button>
         </div>
         {renderTable()}
+        {renderChart()}
       </main>
     </Admin>
   );

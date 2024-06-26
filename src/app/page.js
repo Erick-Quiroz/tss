@@ -131,7 +131,7 @@ export default function Home() {
   return (
     <Admin>
       <main style={{ width: '100%', padding: '20px', boxSizing: 'border-box' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>c
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Balance General
         </Typography>
