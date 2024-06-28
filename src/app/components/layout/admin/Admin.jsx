@@ -114,7 +114,7 @@ const Admin = ({ children }) => {
     
   ];
   const menuItems3 = [
-    { text: "Graficos Balance", icon: <InboxIcon />, href: "/datos" }, 
+    { text: "Simulacion", icon: <InboxIcon />, href: "/simulacion" }, 
     
   ];
   return (
@@ -194,6 +194,37 @@ const Admin = ({ children }) => {
         </ListItem>
       </Link>
     ))}
+    
+    {/* Estilo para anular los estilos predeterminados de los enlaces */}
+    <style jsx global>{`
+      a {
+        text-decoration: none; /* Quitar subrayado */
+        color: inherit; /* Heredar color del texto */
+        cursor: pointer; /* Cambiar cursor a puntero */
+      }
+    `}</style>
+  </List>
+  <Divider />
+  <List>
+    {menuItems3.map((item, index) => (
+      <Link key={index} href={item.href} passHref>
+        <ListItem disablePadding>
+          <ListItemButton
+            sx={{
+              minHeight: 48,
+              justifyContent: open ? "initial" : "center",
+              px: 2.5,
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 40 }}>{/* Ajuste de ancho mínimo para alinear los iconos */}
+              {item.icon}
+            </ListItemIcon>
+            <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
+          </ListItemButton>
+        </ListItem>
+      </Link>
+    ))}
+    
     {/* Estilo para anular los estilos predeterminados de los enlaces */}
     <style jsx global>{`
       a {

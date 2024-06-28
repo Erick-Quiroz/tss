@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, Typography, Button } from '@mui/material';
+import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, Typography, Button, Modal, Box, FormControlLabel, Checkbox } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { blueGrey } from '@mui/material/colors';
 import Admin from '../components/layout/admin/Admin';
@@ -28,6 +28,11 @@ const getRandomColor = () => {
 
 export default function Home() {
   const [excelData, setExcelData] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [exportOptions, setExportOptions] = useState({
+    table: true,
+    chart: true,
+  });
 
   useEffect(() => {
     fetch('/api/finanza')
@@ -40,6 +45,31 @@ export default function Home() {
         console.error('Error al cargar datos de la API:', error);
       });
   }, []);
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleExportChange = event => {
+    setExportOptions({ ...exportOptions, [event.target.name]: event.target.checked });
+  };
+
+  const handleExport = () => {
+    // Verificar las opciones de exportación y ejecutar la exportación correspondiente
+    if (exportOptions.table && exportOptions.chart) {
+      exportPDF(); // Exportar ambos
+    } else if (exportOptions.table) {
+      exportTablePDF(); // Exportar solo la tabla
+    } else if (exportOptions.chart) {
+      exportChartPDF(); // Exportar solo el gráfico
+    }
+
+    handleCloseModal(); // Cerrar el modal después de exportar
+  };
 
   const renderTable = () => {
     if (!excelData || !excelData[0] || !excelData[0].data) return null;
@@ -126,7 +156,7 @@ export default function Home() {
     });
 
     return (
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer id="line-chart-to-export" width="100%" height={400}>
         <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
@@ -142,29 +172,55 @@ export default function Home() {
   };
 
   const exportPDF = () => {
-    // Capturar la tabla como una imagen usando html2canvas
-    html2canvas(document.getElementById('table-to-export')).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
+    // Capturar tanto la tabla como el gráfico como imágenes usando html2canvas
+    const tableCanvasPromise = html2canvas(document.getElementById('table-to-export'));
+    const chartCanvasPromise = html2canvas(document.getElementById('line-chart-to-export'));
+
+    Promise.all([tableCanvasPromise, chartCanvasPromise]).then(canvases => {
+      const [tableCanvas, chartCanvas] = canvases;
       const pdf = new jsPDF('p', 'mm', 'a4');
       const imgWidth = 210; // Anchura de la página A4 en mm
       const pageHeight = 295; // Altura de la página A4 en mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
 
-      // Agregar la imagen al PDF
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      // Agregar la tabla al PDF
+      const tableImgData = tableCanvas.toDataURL('image/png');
+      const tableImgHeight = (tableCanvas.height * imgWidth) / tableCanvas.width;
+      let heightLeft = tableImgHeight;
+      let position = 0;
+      pdf.addImage(tableImgData, 'PNG', 0, position, imgWidth, tableImgHeight);
       heightLeft -= pageHeight;
 
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
+      // Agregar el gráfico al PDF
+      const chartImgData = chartCanvas.toDataURL('image/png');
+      const chartImgHeight = (chartCanvas.height * imgWidth) / chartCanvas.width;
+      position += heightLeft < 0 ? pageHeight : 0; // Avanzar a la siguiente página si es necesario
+      pdf.addPage();
+      pdf.addImage(chartImgData, 'PNG', 0, position, imgWidth, chartImgHeight);
 
       // Descargar el PDF
       pdf.save('tabla_analisis.pdf');
+    });
+  };
+
+  const exportTablePDF = () => {
+    // Capturar solo la tabla como imagen usando html2canvas
+    html2canvas(document.getElementById('table-to-export')).then(tableCanvas => {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210; // Anchura de la página A4 en mm
+      const imgHeight = (tableCanvas.height * imgWidth) / tableCanvas.width;
+      pdf.addImage(tableCanvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save('tabla_analisis.pdf');
+    });
+  };
+
+  const exportChartPDF = () => {
+    // Capturar solo el gráfico como imagen usando html2canvas
+    html2canvas(document.getElementById('line-chart-to-export')).then(chartCanvas => {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210; // Anchura de la página A4 en mm
+      const imgHeight = (chartCanvas.height * imgWidth) / chartCanvas.width;
+      pdf.addImage(chartCanvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save('grafico_analisis.pdf');
     });
   };
 
@@ -175,12 +231,40 @@ export default function Home() {
           <Typography variant="h4" component="h1" gutterBottom>
             Análisis de Datos
           </Typography>
-          <Button variant="contained" color="primary" onClick={exportPDF}>
+          <Button variant="contained" color="primary" onClick={handleOpenModal}>
             Exportar PDF
           </Button>
         </div>
         {renderTable()}
         {renderChart()}
+        <Modal open={modalOpen} onClose={handleCloseModal}>
+          <Box sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4
+          }}>
+            <Typography variant="h6" component="h2">
+              Selecciona las opciones
+            </Typography>
+            <FormControlLabel
+              control={<Checkbox checked={exportOptions.table} onChange={handleExportChange} name="table" />}
+              label="Tabla"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={exportOptions.chart} onChange={handleExportChange} name="chart" />}
+              label="Gráfico"
+            />
+            <Button variant="contained" color="primary" onClick={handleExport}>
+              Exportar
+            </Button>
+          </Box>
+        </Modal>
       </main>
     </Admin>
   );
