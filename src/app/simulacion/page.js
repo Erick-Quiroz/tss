@@ -450,7 +450,7 @@ export default function Home() {
       <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '20px' }}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Simulacion
+            Simulación
           </Typography>
           <Button variant="contained" color="primary" onClick={handleOpenModal}>
             EXPORTAR PDF
