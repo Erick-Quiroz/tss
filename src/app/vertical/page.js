@@ -241,7 +241,7 @@ const Home = () => {
       label: row.CATEGORIA,
       value: parseFloat(row[`AV_${year}`])
     }));
-
+  
     const chartData = {
       labels: dataForChart.map(item => item.label),
       datasets: [
@@ -254,7 +254,7 @@ const Home = () => {
         }
       ]
     };
-
+  
     const chartOptions = {
       responsive: true,
       plugins: {
@@ -267,7 +267,7 @@ const Home = () => {
         },
       },
     };
-
+  
     return (
       <div style={{ width: '100%', marginTop: '20px' }}>
         <Line data={chartData} options={chartOptions} />

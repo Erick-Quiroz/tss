@@ -12,7 +12,6 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Grid,
   Tabs,
   Tab,
@@ -24,7 +23,8 @@ import { blueGrey } from '@mui/material/colors';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import jsPDF from 'jspdf'; // Importa jsPDF para generar PDF
-import 'jspdf-autotable'; 
+import html2canvas from 'html2canvas'; // Importa html2canvas para capturar el gráfico
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -163,11 +163,12 @@ export default function Home() {
     };
 
     return (
-      <div style={{ width: '80%', margin: '40px 0' }}>
+      <div id="chart-container" style={{ width: '80%', margin: '40px 0' }}>
         <Line data={chartData} options={options} />
       </div>
     );
   };
+
   const exportPDF = () => {
     const doc = new jsPDF();
 
@@ -197,64 +198,79 @@ export default function Home() {
     doc.text('Análisis Horizontal', 14, 15);
     doc.save('analisis_horizontal.pdf');
   };
+
+  const exportChartPDF = () => {
+    const chartContainer = document.getElementById('chart-container');
+
+    html2canvas(chartContainer).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF();
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297); // Ajusta el tamaño y la posición según sea necesario
+      pdf.save('grafico.pdf');
+    });
+  };
+
   return (
-   <Admin>
-    <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '20px' }}>
-  <Typography variant="h4" component="h1" gutterBottom>Análisis Horizontal</Typography>
-    <Button variant="contained" onClick={exportPDF}>
-      Exportar PDF
-    </Button>
-  </div>
-  
-  <Tabs value={selectedTab} onChange={handleTabChange}>
-    {availableYears.slice(0, -1).map((year, index) => (
-      <Tab key={index} label={`${year} - ${availableYears[index + 1]}`} />
-    ))}
-    <Tab label="Personalizar" />
-  </Tabs>
-  
-  {selectedTab === availableYears.length - 1 && (
-    <Grid container justifyContent="center" spacing={2} style={{ marginBottom: '20px', marginTop: '20px' }}>
-      <Typography variant="h6" style={{ marginRight: '10px', alignSelf: 'center' }}>Seleccione el rango de año:</Typography>
-      <Grid item>
-        <FormControl style={{ width: '100%' }}>
-          <Select
-            labelId="year1-select-label"
-            id="year1-select"
-            value={selectedYear1}
-            onChange={handleYear1Change}
-            fullWidth
-          >
-            {availableYears.map((year, index) => (
-              <MenuItem key={index} value={year}>{year}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item>
-        <FormControl style={{ width: '100%' }}>
-          <Select
-            labelId="year2-select-label"
-            id="year2-select"
-            value={selectedYear2}
-            onChange={handleYear2Change}
-            fullWidth
-          >
-            {availableYears.map((year, index) => (
-              <MenuItem key={index} value={year}>{year}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
-  )}
-  
-  {renderTable()}
-  {renderChart()}
-</main>
+    <Admin>
+      <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '20px' }}>
+          <Typography variant="h4" component="h1" gutterBottom>Análisis Horizontal</Typography>
+          <div>
+            <Button variant="contained" onClick={exportPDF} style={{ marginRight: '10px' }}>
+              Exportar PDF
+            </Button>
+            <Button variant="contained" onClick={exportChartPDF}>
+              Exportar Gráfico
+            </Button>
+          </div>
+        </div>
 
-   </Admin>
+        <Tabs value={selectedTab} onChange={handleTabChange}>
+          {availableYears.slice(0, -1).map((year, index) => (
+            <Tab key={index} label={`${year} - ${availableYears[index + 1]}`} />
+          ))}
+          <Tab label="Personalizar" />
+        </Tabs>
 
+        {selectedTab === availableYears.length - 1 && (
+          <Grid container justifyContent="center" spacing={2} style={{ marginBottom: '20px', marginTop: '20px' }}>
+            <Typography variant="h6" style={{ marginRight: '10px', alignSelf: 'center' }}>Seleccione el rango de año:</Typography>
+            <Grid item>
+              <FormControl style={{ width: '100%' }}>
+                <Select
+                  labelId="year1-select-label"
+                  id="year1-select"
+                  value={selectedYear1}
+                  onChange={handleYear1Change}
+                  fullWidth
+                >
+                  {availableYears.map((year, index) => (
+                    <MenuItem key={index} value={year}>{year}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <FormControl style={{ width: '100%' }}>
+                <Select
+                  labelId="year2-select-label"
+                  id="year2-select"
+                  value={selectedYear2}
+                  onChange={handleYear2Change}
+                  fullWidth
+                >
+                  {availableYears.map((year, index) => (
+                    <MenuItem key={index} value={year}>{year}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        )}
+
+        {renderTable()}
+        {renderChart()}
+      </main>
+    </Admin>
   );
 }
