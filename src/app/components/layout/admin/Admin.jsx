@@ -26,6 +26,7 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import SwapVerticalCircleIcon from '@mui/icons-material/SwapVerticalCircle';
 import SwapHorizontalCircleIcon from '@mui/icons-material/SwapHorizontalCircle';
 import GridGoldenratioIcon from '@mui/icons-material/GridGoldenratio';
+import DataThresholdingIcon from '@mui/icons-material/DataThresholding';
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -107,14 +108,16 @@ const Admin = ({ children }) => {
     { text: "Análisis Vertical", icon: <SwapVerticalCircleIcon />, href: "/vertical" }, 
     { text: "Análisis Horizontal", icon: <SwapHorizontalCircleIcon />, href: "/horizontal" }, 
     { text: "Análisis De Tendencias", icon: <BubbleChartIcon />, href: "/analisis" }, 
-    { text: "Ratios Financieros", icon: <GridGoldenratioIcon />, href: "/ratios-financieros" }, 
+    { text: "Ratios Financieros", icon: <GridGoldenratioIcon />, href: "/ratios-financieros" },
+    { text: "Simulación", icon: <DataThresholdingIcon />, href: "/simulacion" },  
   ];
+
   const menuItems2 = [
     { text: "Cargar Datos", icon: <InboxIcon />, href: "/datos" }, 
     
   ];
   const menuItems3 = [
-    { text: "Simulacion", icon: <InboxIcon />, href: "/simulacion" }, 
+    
     
   ];
   return (
