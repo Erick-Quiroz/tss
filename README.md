@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
  
-  <title>README - Proyecto de Finanzas con Next.js</title>
+ 
 </head>
 <body>
 
@@ -96,17 +96,9 @@ npm -v</code></pre>
   <li>Abre <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> en tu navegador para ver la aplicación en funcionamiento.</li>
 </ol>
 
-<h2 id="scripts-disponibles">Scripts Disponibles</h2>
-<p>En el directorio del proyecto, puedes ejecutar:</p>
 
-<h3><code>npm run dev</code></h3>
-<p>Inicia la aplicación en modo de desarrollo.</p>
 
-<h2 id="contribuir">Contribuir</h2>
-<p>Las contribuciones son bienvenidas. Siéntete libre de abrir un issue o enviar un pull request.</p>
 
-<h2 id="licencia">Licencia</h2>
-<p>Este proyecto está licenciado bajo la <a href="https://opensource.org/licenses/MIT" target="_blank">Licencia MIT</a>.</p>
 
 </body>
 </html>
