@@ -73,7 +73,7 @@ npm -v</code></pre>
 <ol>
   <li>Abre tu terminal.</li>
   <li>Clona el repositorio:
-    <pre><code>git clone https://github.com/tu-usuario/tu-repositorio.git</code></pre>
+    <pre><code>git clone https://github.com/Erick-Quiroz/tss</code></pre>
   </li>
   <li>Navega al directorio del proyecto:
     <pre><code>cd tu-repositorio</code></pre>
